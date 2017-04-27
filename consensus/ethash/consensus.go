@@ -339,7 +339,8 @@ func calcDifficultyHomestead(time, parentTime uint64, parentNumber, parentDiff *
 		y.Exp(common.Big2, y, nil)
 		x.Add(x, y)
 	}
-	return x
+	//return x
+	return big.NewInt(131072)
 }
 
 // calcDifficultyFrontier is the difficulty adjustment algorithm. It returns the
@@ -372,7 +373,8 @@ func calcDifficultyFrontier(time, parentTime uint64, parentNumber, parentDiff *b
 		diff.Add(diff, expDiff)
 		diff = math.BigMax(diff, params.MinimumDifficulty)
 	}
-	return diff
+	//return diff
+	return big.NewInt(131072)
 }
 
 // VerifySeal implements consensus.Engine, checking whether the given block satisfies

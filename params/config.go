@@ -59,8 +59,8 @@ var (
 	// means that all fields must be set at all times. This forces
 	// anyone adding flags to the config to also have to set these
 	// fields.
-	AllProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), new(EthashConfig), nil}
-	TestChainConfig    = &ChainConfig{big.NewInt(1), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), new(EthashConfig), nil}
+	AllProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), new(EthashConfig), nil, nil}
+	TestChainConfig    = &ChainConfig{big.NewInt(1), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), new(EthashConfig), nil, nil}
 )
 
 // ChainConfig is the core config which determines the blockchain settings.
@@ -85,6 +85,7 @@ type ChainConfig struct {
 	// Various consensus engines
 	Ethash *EthashConfig `json:"ethash,omitempty"`
 	Clique *CliqueConfig `json:"clique,omitempty"`
+	Otonomos *OtonomosConfig `json:"otonomos,omitempty"`
 }
 
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
@@ -106,6 +107,17 @@ func (c *CliqueConfig) String() string {
 	return "clique"
 }
 
+// OtonomosConfig is the consensus engine configs for proof-of-authority based sealing.
+type OtonomosConfig struct {
+	Clique *CliqueConfig `json:"clique"`
+	powStartBlock uint `json:"powStartBlock"`
+}
+
+// String implements the stringer interface, returning the consensus engine details.
+func (o *OtonomosConfig) String() string {
+	return "otonomos"
+}
+
 // String implements the fmt.Stringer interface.
 func (c *ChainConfig) String() string {
 	var engine interface{}
@@ -114,8 +126,12 @@ func (c *ChainConfig) String() string {
 		engine = c.Ethash
 	case c.Clique != nil:
 		engine = c.Clique
+	case c.Otonomos != nil:
+		engine = c.Otonomos
 	default:
 		engine = "unknown"
+		// Mano hardcoded this instead of using the above case statement as he couldnt figure out where this config really comes from
+	engine = c.Otonomos
 	}
 	return fmt.Sprintf("{ChainID: %v Homestead: %v DAO: %v DAOSupport: %v EIP150: %v EIP155: %v EIP158: %v Engine: %v}",
 		c.ChainId,
